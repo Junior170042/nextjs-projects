@@ -124,7 +124,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
                 ...result.data!,
                 author: { id: user?.id!, name: user?.name!, picture: user?.picture! }
             }
-            //removing temporer comment
+
             setPosts((prev) => prev.map((post) => post.id === result.data?.postId ? { ...post, comments: post.comments.filter((comment) => comment.id !== temporerId) } : post));
 
             setPosts((prev) => prev.map((post) => post.id === result.data?.postId ? { ...post, comments: [...post.comments, populatedComment] } : post));
