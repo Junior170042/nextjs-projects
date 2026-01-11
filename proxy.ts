@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { checkUserLevel, isRoleAllowed } from './lib/utils';
 import { UserRole } from './app/types';
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
     // 1. Skip middleware for static files, images, and API routes
@@ -45,7 +45,7 @@ export async function middleware(req: NextRequest) {
             }
         }
     } catch (error) {
-        console.error("Middleware error:", error);
+        console.error("Proxy error:", error);
         return NextResponse.redirect(new URL('/forbidden', req.url));
     }
 
