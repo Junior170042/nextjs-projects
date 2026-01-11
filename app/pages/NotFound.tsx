@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-export default function NotFound() {
+export default function NotFoundComponent() {
     const router = useRouter();
     return (
         <div className="min-h-screen flex-col-center w-full">
