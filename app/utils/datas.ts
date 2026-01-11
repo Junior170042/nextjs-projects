@@ -9,6 +9,11 @@ export const toastOptions: ToastOptions = {
     sound: true,
 }
 
+export const publicRoutes = [
+    "/login",
+    "/",
+    "/forbidden"
+]
 
 export const RoutesRoles = {
     user: ["/create-post"],
