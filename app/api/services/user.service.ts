@@ -98,11 +98,11 @@ export async function login(email: string, verificationCode: string) {
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
         }
-    } catch (error: any) {
-        if (error.name === "TokenExpiredError") {
+    } catch (error: unknown) {
+        if (error instanceof Error && error.name === "TokenExpiredError") {
             throw new Error("Invalid code or code expired!");
         }
-        throw error.message;
+        throwError(error);
     }
 }
 

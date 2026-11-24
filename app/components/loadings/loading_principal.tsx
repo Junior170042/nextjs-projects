@@ -1,9 +1,10 @@
 "use client";
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export const LoadingPrincipal = () => {
     return (
-        <div className="fixed inset-0 z-[9999] backdrop-blur-sm h-screen w-screen  bg-transparent">
+        <div className="fixed inset-0 z-999 backdrop-blur-sm h-screen w-screen  bg-transparent">
             <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -34,7 +35,7 @@ export const LoadingPrincipal = () => {
                         }}
                     />
                     <div className="absolute inset-0 flex-center">
-                        <img src="postOne.png" className="w-[20rem] dark:filter dark:invert" alt="postOne" />
+                        <Image src="/postOne.png" className="w-[20rem] dark:filter dark:invert" alt="postOne" width={320} height={320} />
                     </div>
                 </div>
             </motion.div>

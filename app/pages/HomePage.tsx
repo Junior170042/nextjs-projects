@@ -19,7 +19,7 @@ export default function HomePage() {
     return <>
         <div className="relative">
             <Hero3DComponent />
-            <section className="relative h-[20rem] flex items-center justify-center bg-linear-to-br from-indigo-200 to-cyan-400 overflow-hidden dark:from-indigo-900 dark:to-indigo-900">
+            <section className="relative h-80 flex items-center justify-center bg-linear-to-br from-indigo-200 to-cyan-400 overflow-hidden dark:from-indigo-900 dark:to-indigo-900">
 
                 <div className="relative z-10 text-center px-4">
                     <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-linear-to-r  from-indigo-600 to-indigo-600 mb-6 drop-shadow-xl dark:from-indigo-200 dark:to-indigo-200">

@@ -1,6 +1,7 @@
 "use client";
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginForm from '../components/auth/LoginForm';
+import Image from 'next/image';
 
 export default function LoginPage() {
 
@@ -20,7 +21,7 @@ export default function LoginPage() {
                     animate={{ y: 0, opacity: 1 }}
                     className=" flex-center"
                 >
-                    <img src="postOne.png" alt="postOne" className="w-32 h-32 filter drop-shadow-lg rounded-full dark:invert-[100%]" />
+                    <Image src="/postOne.png" alt="postOne" className="w-32 h-32 filter drop-shadow-lg rounded-full dark:invert-100" width={128} height={128} />
                 </motion.div>
 
                 {/* Form Container */}

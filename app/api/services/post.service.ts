@@ -12,7 +12,7 @@ export async function createPost(post: NewPost) {
 }
 
 export async function updatePost(id: string, post: Partial<NewPost>) {
-    let updatedData: Partial<NewPost> = {};
+    const updatedData: Partial<NewPost> = {};
     if (post.title) updatedData.title = post.title;
     if (post.content) updatedData.content = post.content;
     try {

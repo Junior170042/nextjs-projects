@@ -6,9 +6,9 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+} from "@/app/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar";
+import { Button } from "@/app/components/ui/button";
 import { LogOut, LayoutDashboard, PlusSquare, Home, User as UserIcon } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { ThemeSwitcher } from "./ThemeSwitcher";
@@ -33,12 +33,12 @@ export default function Navbar() {
     }, [currentPath]);
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
+        <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 py-2">
             <div className="container flex h-16 items-center justify-between">
                 <div className="flex items-center max-h-full">
                     <Link href="/" className="flex items-center h-16">
                         <Image src="/postOne.png" alt="Logo" width={150} height={20}
-                            className="filter drop-shadow-lg rounded-full dark:invert-[100%]" />
+                            className="filter drop-shadow-lg rounded-full dark:invert-100" />
                     </Link>
                 </div>
 

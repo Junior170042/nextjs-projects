@@ -4,6 +4,7 @@ import { showToast } from 'nextjs-toast-notify';
 import React, { useState } from 'react';
 import { usePostContext } from '../context/postContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function CreatePostPage() {
     const [title, setTitle] = useState('');
@@ -84,7 +85,7 @@ export default function CreatePostPage() {
                     {/*Image preview*/}
 
                     <div className="mb-4">
-                        <img src={image ? URL.createObjectURL(image) : "/postOnePlaceHolder.png"} alt="Preview" className="w-full h-[200px] object-cover rounded-lg" />
+                        <Image src={image ? URL.createObjectURL(image) : "/postOnePlaceHolder.png"} alt="Preview" className="w-full h-50 object-cover rounded-lg" width={300} height={200} />
                     </div>
 
 

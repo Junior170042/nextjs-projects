@@ -1,32 +1,37 @@
 import { useAuth } from "../context/AuthContext";
 export function useFetchWithAuth() {
-    const { refresh, isRefreshing, accessToken } = useAuth();
+    const { refresh, accessToken } = useAuth();
 
     const authenticatedFetch = async (
         path: string,
         init?: RequestInit,
     ) => {
-        const fetchPrivateData = () =>
-            fetch(`/api/${path}`, {
+        const apiPath = path.replace(/^\/+/, "").replace(/^api\/+/, "");
+        const headers = new Headers(init?.headers);
+        if (!headers.has("Content-Type") && init?.body != null) {
+            headers.set("Content-Type", "application/json");
+        }
+
+        const fetchPrivateData = (token: string | null) => {
+            const requestHeaders = new Headers(headers);
+            if (token) requestHeaders.set("Authorization", `Bearer ${token}`);
+            else requestHeaders.delete("Authorization");
+
+            return fetch(`/api/${apiPath}`, {
                 ...init,
                 credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-                    ...init?.headers,
-                },
+                headers: requestHeaders,
             });
+        };
 
-        let res = await fetchPrivateData();
+        const res = await fetchPrivateData(accessToken);
 
-        if (res.status === 200 || res.status === 201) return res;
+        if (res.status !== 401) return res;
 
-        // 🔁 refresh
-        if (!isRefreshing) {
-            await refresh();
-        }
-        return fetchPrivateData();
-    };
+        const refreshedToken = await refresh();
+        if (!refreshedToken) return res;
+        return fetchPrivateData(refreshedToken);
+    }
 
     return authenticatedFetch;
 }

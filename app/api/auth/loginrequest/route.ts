@@ -51,8 +51,8 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: false, error: "Something went wrong!" }, { status: 401 });
 
-    } catch (error: any) {
-        if (error.name === "TokenExpiredError" || error.message === "jwt expired") {
+    } catch (error: unknown) {
+        if (error instanceof Error && (error.name === "TokenExpiredError" || error.message === "jwt expired")) {
             const { code, expireAt, requestedAt } = await EmailServices.sendVerificationCode(email.toLowerCase()) as { code: string, expireAt: number, requestedAt: number };
 
             const verificationToken = jwt.sign({ email, code, expireAt, requestedAt }, process.env.JWT_VERIFY_SECRET!, { expiresIn: "7d" });

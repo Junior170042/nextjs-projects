@@ -6,7 +6,7 @@ export default function AdminPage() {
     if (isPending) return (
         <div className="w-full animate-pulse">
             <div className="h-2.5 bg-gray-200 rounded-full w-1/2 mb-4"></div>
-            <div className="h-2 bg-gray-200 rounded-full max-w-[360px] mb-2.5"></div>
+            <div className="h-2 bg-gray-200 rounded-full max-w-90 mb-2.5"></div>
             <div className="h-2 bg-gray-200 rounded-full w-1/2 mb-2.5"></div>
             <div className="h-2 bg-gray-200 rounded-full w-1/4 mb-2.5"></div>
             <div className="h-2 bg-gray-200 rounded-full w-1/4 mb-2.5"></div>

@@ -1,6 +1,6 @@
 "use client";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/app/components/ui/button";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -9,7 +9,9 @@ export const ThemeSwitcher = () => {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
+        setTimeout(() => {
+            setMounted(true);
+        }, 100);
     }, []);
 
     if (!mounted) return null;

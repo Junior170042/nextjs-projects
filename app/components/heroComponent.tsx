@@ -28,7 +28,7 @@ const Hero3DComponent: React.FC<Hero3DProps> = ({
 
     const onCtaClick = useCallback(() => {
         router.push('/create-post')
-    }, [])
+    }, [router])
 
     // Si 3D está deshabilitado, mostrar fallback
     if (!is3DEnabled) {

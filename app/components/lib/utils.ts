@@ -9,6 +9,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function normalizeImageSrc(src: string | null | undefined, fallback = "/postOnePlaceHolder.png") {
+  if (!src) return fallback;
+  if (src.startsWith("/") || /^[a-z][a-z\d+.-]*:/i.test(src)) return src;
+  return `/${src}`;
+}
+
 export enum UserRoles {
   ADMIN = "admin",
   USER = "user"

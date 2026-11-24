@@ -29,7 +29,6 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchWithAuth = useFetchWithAuth();
     const [error, setError] = React.useState<string | null>(null);
 
-    if (isRefreshing) return null;
 
     function addPost(post: Omit<NewPost, "userId">) {
         startTransition(async () => {
@@ -43,7 +42,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
                 setError(result.error || "Error al agregar el post");
                 return
             }
-            setPosts((prev) => [...prev, result.data!].sort((a, b) => b?.createdAt?.getTime()! - a?.createdAt?.getTime()!));
+            setPosts((prev) => [...prev, result.data!].sort((a, b) => (b?.createdAt?.getTime() as number) - (a?.createdAt?.getTime() as number)));
         })
     }
 
@@ -106,28 +105,33 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             ...comment,
             id: temporerId,
             createdAt: new Date(),
-            author: { id: user?.id!, name: user?.name!, picture: user?.picture! }
+            author: { id: user?.id as string, name: user?.name as string, picture: user?.picture as string }
         }
         setPosts((prev) => prev.map((post) => post.id === comment.postId ? { ...post, comments: [...post.comments, populatedComment] } : post));
         startTransition(async () => {
-            const response = await fetchWithAuth('/post/comment', {
-                method: 'POST',
-                body: JSON.stringify(comment),
-            });
+            try {
+                const response = await fetchWithAuth('/post/comment', {
+                    method: 'POST',
+                    body: JSON.stringify(comment),
+                });
+                const result = await response.json() as ApiResponse<Comment>;
+                if (!response.ok || !result.success || !result.data) {
+                    setPosts((prev) => prev.map((post) => post.id === comment.postId ? { ...post, comments: post.comments.filter((item) => item.id !== temporerId) } : post));
+                    setError(result.error || "Error al agregar el comentario");
+                    return;
+                }
 
-            const result = await response.json() as ApiResponse<Comment>;
-            if (!result.success || result.error) {
-                setError(result.error || "Error al agregar el comentario");
-                return;
+                const confirmedComment: PopulatedComment = {
+                    ...result.data,
+                    author: { id: user?.id as string, name: user?.name as string, picture: user?.picture as string }
+                };
+                setPosts((prev) => prev.map((post) => post.id === result.data!.postId
+                    ? { ...post, comments: post.comments.map((item) => item.id === temporerId ? confirmedComment : item) }
+                    : post));
+            } catch (error: unknown) {
+                setPosts((prev) => prev.map((post) => post.id === comment.postId ? { ...post, comments: post.comments.filter((item) => item.id !== temporerId) } : post));
+                setError(getErrorMessage(error, "adding comment"));
             }
-            const populatedComment: PopulatedComment = {
-                ...result.data!,
-                author: { id: user?.id!, name: user?.name!, picture: user?.picture! }
-            }
-
-            setPosts((prev) => prev.map((post) => post.id === result.data?.postId ? { ...post, comments: post.comments.filter((comment) => comment.id !== temporerId) } : post));
-
-            setPosts((prev) => prev.map((post) => post.id === result.data?.postId ? { ...post, comments: [...post.comments, populatedComment] } : post));
         })
     }
 
@@ -140,59 +144,71 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
         const temporerId = crypto.randomUUID();
 
-        let populatedReaction: PopulatedReaction = {
+        const currentPost = getPostById(reaction.postId);
+        if (!currentPost) return;
+        const previousReactions = currentPost.reactions;
+        const optimisticReaction: PopulatedReaction = {
             ...reaction,
             id: temporerId,
             createdAt: new Date(),
-            user: { id: user?.id!, name: user?.name!, picture: user?.picture! }
+            user: { id: user?.id as string, name: user?.name as string, picture: user?.picture as string }
         }
 
         if (reaction.type === "dislike") {
-            setPosts((prev) => prev.map((post) => post.id === reaction.postId ? { ...post, reactions: post.reactions.filter((reaction) => reaction.id !== reaction.id) } : post));
+            setPosts((prev) => prev.map((post) => post.id === reaction.postId ? { ...post, reactions: post.reactions.filter((item) => item.id !== reaction.id) } : post));
         } else {
-            setPosts((prev) => prev.map((post) => post.id === reaction.postId ? { ...post, reactions: [...post.reactions, populatedReaction] } : post));
+            setPosts((prev) => prev.map((post) => post.id === reaction.postId
+                ? { ...post, reactions: [...post.reactions.filter((item) => item.userId !== reaction.userId), optimisticReaction] }
+                : post));
         }
 
         startTransition(async () => {
-            const response = await fetchWithAuth('/post/reaction', {
-                method: 'POST',
-                body: JSON.stringify(reaction),
-            });
-
-            const result = await response.json() as ApiResponse<PostReaction>;
-            if (!result.success || result.error) {
-                setError(result.error || "Error al agregar la reacción");
-                return;
-            }
-
-            if (result?.data?.type !== "dislike") {
-                populatedReaction = {
-                    ...result.data!,
-                    user: { id: user?.id!, name: user?.name!, picture: user?.picture! }
+            try {
+                const response = await fetchWithAuth('/post/reaction', {
+                    method: 'POST',
+                    body: JSON.stringify(reaction),
+                });
+                const result = await response.json() as ApiResponse<PostReaction>;
+                if (!response.ok || !result.success || !result.data) {
+                    setPosts((prev) => prev.map((post) => post.id === reaction.postId ? { ...post, reactions: previousReactions } : post));
+                    setError(result.error || "Error al agregar la reacción");
+                    return;
                 }
 
-                //removing temporer reaction
-                setPosts((prev) => prev.map((post) => post.id === reaction.postId ? { ...post, reactions: post.reactions.filter((reaction) => reaction.id !== temporerId) } : post));
-                //adding new reaction
-                setPosts((prev) => prev.map((post) => (post.id === result.data?.postId) && populatedReaction ? { ...post, reactions: [...post?.reactions!, populatedReaction] } : post));
-                return;
-            }
+                if (result.data.type === "dislike") {
+                    setPosts((prev) => prev.map((post) => post.id === result.data!.postId
+                        ? { ...post, reactions: post.reactions.filter((item) => item.userId !== reaction.userId) }
+                        : post));
+                    return;
+                }
 
-            setPosts((prev) => prev.map((post) => post.id === result.data?.postId ? { ...post, reactions: post.reactions.filter((reaction) => reaction.id !== result.data?.id) } : post));
+                const confirmedReaction: PopulatedReaction = {
+                    ...result.data,
+                    user: { id: user?.id as string, name: user?.name as string, picture: user?.picture as string }
+                };
+                setPosts((prev) => prev.map((post) => post.id === result.data!.postId
+                    ? { ...post, reactions: [...post.reactions.filter((item) => item.userId !== reaction.userId), confirmedReaction] }
+                    : post));
+            } catch (error: unknown) {
+                setPosts((prev) => prev.map((post) => post.id === reaction.postId ? { ...post, reactions: previousReactions } : post));
+                setError(getErrorMessage(error, "adding reaction"));
+            }
         })
     }
 
     useEffect(() => {
-        startTransition(async () => {
-            const response = await fetch('/api/post/allposts');
-            const result = await response.json() as ApiResponse<PopulatedPost[]>;
-            if (!result.success) {
-                setPosts([]);
-                return;
-            }
-            setPosts(result.data ?? []);
-        })
-    }, []);
+        if (!isRefreshing) {
+            startTransition(async () => {
+                const response = await fetch('/api/post/allposts');
+                const result = await response.json() as ApiResponse<PopulatedPost[]>;
+                if (!result.success) {
+                    setPosts([]);
+                    return;
+                }
+                setPosts(result.data ?? []);
+            })
+        }
+    }, [isRefreshing]);
 
     return (
         <PostContext.Provider value={{ posts, isPending, addPost, removePost, error, updatePost, addComment, addReaction, getPostById }}>

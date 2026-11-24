@@ -1,7 +1,7 @@
 
 import jwt from "jsonwebtoken";
 import * as UserServices from "@/app/api/services/user.service";
-import { generateTokens, handleError, setRefreshTokenCookie, setRoleAndSessionCookie } from "@/app/api/api_helpers";
+import { generateTokens, handleError, setRoleAndSessionCookie } from "@/app/api/api_helpers";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
@@ -35,8 +35,8 @@ export async function POST() {
             accessTokenExpiresIn: "30m",
             user
         });
-    } catch (error: any) {
-        if (error?.name === "TokenExpiredError") {
+    } catch (error: unknown) {
+        if (error instanceof Error && error.name === "TokenExpiredError") {
             return NextResponse.json({ success: false, error: "Refresh token expired, please login again" }, { status: 403 });
         }
         return handleError(error, "refresh endpoint");

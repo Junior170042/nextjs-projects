@@ -1,10 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 export default function NotFoundComponent() {
     const router = useRouter();
     return (
         <div className="min-h-screen flex-col-center w-full">
-            <img src="postOne.png" alt="postOne" className="w-32 h-32 filter drop-shadow-lg rounded-full invert-[100%]" />
+            <Image src="/postOne.png" alt="postOne" className="w-32 h-32 filter drop-shadow-lg rounded-full invert-100" width={128} height={128} />
             <p className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-indigo-400 to-purple-400">
                 The page you are looking for does not exist.
             </p>

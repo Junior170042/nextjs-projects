@@ -1,16 +1,15 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, Heart, MessageCircle, Pencil, Send, Trash, User, X } from 'lucide-react';
 import { getPostReactionId, isPostBelongsToUser, isPostCommentedByUser, isPostLikedByUser } from '../utils/helpers';
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent, CardFooter } from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
 import { useAuth } from '../context/AuthContext';
 import { usePostContext } from '../context/postContext';
-import { showToast } from 'nextjs-toast-notify';
-import { toastOptions } from '../utils/datas';
 import { useCallback, useState } from 'react';
 import { PopulatedPost } from '../api/db/schema';
 import Image from 'next/image';
 import Link from 'next/link';
+import { normalizeImageSrc } from './lib/utils';
 interface PostCardProps {
     post: PopulatedPost;
 }
@@ -57,13 +56,13 @@ export default function PostCard({ post }: PostCardProps) {
         setCurrentComment('');
     };
 
-    const handleRemovePost = useCallback(() => {
+    const handleRemovePost = () => {
         if (!currentPostId) return;
         removePost(currentPostId)
         setRemoveMode(false);
-    }, [currentPostId]);
+    };
 
-    const handleUpdatePost = useCallback(() => {
+    const handleUpdatePost = () => {
         if (!currentPost || !user) return;
         updatePost({
             postId: currentPost.id,
@@ -71,8 +70,7 @@ export default function PostCard({ post }: PostCardProps) {
             updatedPost: currentPost
         })
         setEditMode(false);
-    }, [currentPost]);
-
+    };
     const showComment = useCallback(() => {
         setIsShowComment(true);
     }, []);
@@ -91,7 +89,7 @@ export default function PostCard({ post }: PostCardProps) {
                 <CardHeader className="flex justify-between py-4 border-b border-default-400">
                     <div className="flex">
                         <User
-                            name={post.author?.name!} />
+                            name={post.author?.name as string} />
                         <p >{post.author?.name}</p>
                     </div>
 
@@ -115,7 +113,7 @@ export default function PostCard({ post }: PostCardProps) {
                         <Image
                             alt={post.title}
                             className="w-full h-full object-cover"
-                            src={post.image ?? "/postOnePlaceHolder.png"}
+                            src={normalizeImageSrc(post.image)}
                             width={500}
                             height={300}
                         />
@@ -166,7 +164,7 @@ export default function PostCard({ post }: PostCardProps) {
                             {post.comments?.length > 0 ? post.comments.map((comment) => (
                                 <div key={comment.id} className="text-default-400  text-sm  pl-2 mt-2  w-[95%] max-h-[25%] border-b border-gray-400 ">
                                     <p className="font-bold text-xs dark:text-gray-800">{comment.author?.id === user?.id ? "You" : (comment.author?.name)?.split(" ")[0]} {new Date(comment.createdAt!).toLocaleDateString()} </p>
-                                    <p className="line-clamp-2 -mt-[1px] dark:text-gray-800">{comment.content}</p>
+                                    <p className="line-clamp-2 -mt-px dark:text-gray-800">{comment.content}</p>
                                 </div>
                             )) : <p className="p-2 text-center text-default-400 w-full dark:text-gray-800">No comments yet</p>}
                         </div>
@@ -201,7 +199,7 @@ export default function PostCard({ post }: PostCardProps) {
                             name="title"
                             id="title"
                             onChange={handlePostEditChange}
-                            className="p-3 text-default-400 p-4 bg-gray-200 rounded-md placeholder:text-gray-500 dark:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 border-1 border-gray-500" />
+                            className="text-default-400 p-4 bg-gray-200 rounded-md placeholder:text-gray-500 dark:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-500" />
                         <label htmlFor="content" className='text-default-400 dark:text-gray-800'>Content</label>
                         <textarea
                             value={currentPost?.content as string}
@@ -209,7 +207,7 @@ export default function PostCard({ post }: PostCardProps) {
                             name="content"
                             id="content"
                             onChange={handlePostEditChange}
-                            className=" text-default-400 p-4 bg-gray-200 rounded-md placeholder:text-gray-500 dark:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 h-50 border-1 border-gray-500"
+                            className=" text-default-400 p-4 bg-gray-200 rounded-md placeholder:text-gray-500 dark:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 h-50 border border-gray-500"
                         />
                         <div className="flex gap-12 mt-4 justify-center">
                             <button
@@ -233,7 +231,7 @@ export default function PostCard({ post }: PostCardProps) {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.3 }}
-                    className="absolute px-4 bottom-0 left-0 w-full rounded-l-md rounded-r-md z-50 flex h-full z-50 grid place-items-center backdrop-blur-xs dark:backdrop-blur-md"
+                    className="absolute px-4 bottom-0 left-0 w-full rounded-l-md rounded-r-md z-50 h-full grid place-items-center backdrop-blur-xs dark:backdrop-blur-md"
                 >
                     <Card className="w-full h-[40%] bg-muted text-muted-foreground shadow-lg">
                         <CardHeader>

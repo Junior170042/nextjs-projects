@@ -14,7 +14,7 @@ export default function LoginForm() {
     const [code, setCode] = useState('');
     const [error, setError] = useState('');
     const { login } = useAuth();
-    const handleRequestLogin = async (e: React.FormEvent) => {
+    const handleRequestLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         setError('');
 
